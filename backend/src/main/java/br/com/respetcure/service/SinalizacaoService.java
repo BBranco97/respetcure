@@ -1,7 +1,7 @@
 package br.com.respetcure.service;
 
-import br.com.respetcure.model.AnuncioAdocao;
-import br.com.respetcure.repository.AnuncioAdocaoRepository;
+import br.com.respetcure.model.Sinalizacao;
+import br.com.respetcure.repository.SinalizacaoRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -9,31 +9,22 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
-public class AnuncioAdocaoService {
+public class SinalizacaoService {
 
-    private final AnuncioAdocaoRepository repository;
+    private final SinalizacaoRepository repository;
 
-    public AnuncioAdocaoService(
-            AnuncioAdocaoRepository repository
+    public SinalizacaoService(
+            SinalizacaoRepository repository
     ) {
         this.repository = repository;
     }
 
-    public AnuncioAdocao salvar(
-            AnuncioAdocao anuncio
-    ) {
-
-        return repository.save(
-                anuncio
-        );
-    }
-
-    public List<AnuncioAdocao> listarTodos() {
+    public List<Sinalizacao> listarTodos() {
 
         return repository.findAll();
     }
 
-    public AnuncioAdocao buscarPorId(
+    public Sinalizacao buscarPorId(
             Integer id
     ) {
 
@@ -41,22 +32,26 @@ public class AnuncioAdocaoService {
                 .orElseThrow(
                         () -> new ResponseStatusException(
                                 HttpStatus.NOT_FOUND,
-                                "Anuncio nao encontrado."
+                                "Sinalizacao nao encontrada."
                         )
                 );
     }
 
-    public AnuncioAdocao atualizar(
-            Integer id,
-            AnuncioAdocao anuncio
+    public Sinalizacao salvar(
+            Sinalizacao sinalizacao
     ) {
 
-        anuncio.setId(
-                id
-        );
+        if (sinalizacao.getAnuncio() == null &&
+                sinalizacao.getUsuario() == null) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Informe um anuncio ou usuario para sinalizar."
+            );
+        }
 
         return repository.save(
-                anuncio
+                sinalizacao
         );
     }
 

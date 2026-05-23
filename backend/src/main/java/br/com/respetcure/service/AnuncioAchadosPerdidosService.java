@@ -3,7 +3,9 @@ package br.com.respetcure.service;
 import br.com.respetcure.model.AnuncioAchadosPerdidos;
 import br.com.respetcure.repository.AnuncioAchadosPerdidosRepository;
 import br.com.respetcure.util.GeoUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -36,22 +38,66 @@ public class AnuncioAchadosPerdidosService {
         );
     }
 
-    public List<AnuncioAchadosPerdidos>
-    listarTodos() {
+    public List<AnuncioAchadosPerdidos> listarTodos() {
 
         return repository.findAll();
     }
 
-    public AnuncioAchadosPerdidos
-    buscarPorId(
+    public AnuncioAchadosPerdidos buscarPorId(
             Integer id
     ) {
 
         return repository.findById(id)
                 .orElseThrow(
-                        () -> new RuntimeException(
-                                "Anúncio não encontrado."
+                        () -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Anuncio nao encontrado."
                         )
                 );
+    }
+
+    public AnuncioAchadosPerdidos atualizar(
+            Integer id,
+            AnuncioAchadosPerdidos anuncio,
+            Double longitude,
+            Double latitude
+    ) {
+
+        AnuncioAchadosPerdidos existente =
+                buscarPorId(
+                        id
+                );
+
+        anuncio.setId(
+                id
+        );
+
+        if (longitude != null && latitude != null) {
+            anuncio.setLocalizacao(
+                    GeoUtils.criarPonto(
+                            longitude,
+                            latitude
+                    )
+            );
+        } else {
+            anuncio.setLocalizacao(
+                    existente.getLocalizacao()
+            );
+        }
+
+        return repository.save(
+                anuncio
+        );
+    }
+
+    public void excluir(
+            Integer id
+    ) {
+
+        repository.delete(
+                buscarPorId(
+                        id
+                )
+        );
     }
 }

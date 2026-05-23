@@ -49,4 +49,30 @@ public class AnuncioAchadosPerdidosController {
                 latitude
         );
     }
+
+    @PutMapping("/{id}")
+    public AnuncioAchadosPerdidos atualizar(
+            @PathVariable Integer id,
+            @RequestBody AnuncioAchadosPerdidos anuncio,
+            @RequestParam(required = false) Double longitude,
+            @RequestParam(required = false) Double latitude
+    ) {
+
+        return service.atualizar(
+                id,
+                anuncio,
+                longitude,
+                latitude
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public void excluir(
+            @PathVariable Integer id
+    ) {
+
+        service.excluir(
+                id
+        );
+    }
 }

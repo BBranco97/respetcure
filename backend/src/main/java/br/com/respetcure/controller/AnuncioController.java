@@ -24,6 +24,16 @@ public class AnuncioController {
         return service.listarTodos();
     }
 
+    @GetMapping("/{id}")
+    public Anuncio buscarPorId(
+            @PathVariable Integer id
+    ) {
+
+        return service.buscarPorId(
+                id
+        );
+    }
+
     @PostMapping
     public Anuncio salvar(
             @RequestBody Anuncio anuncio
@@ -31,6 +41,28 @@ public class AnuncioController {
 
         return service.salvar(
                 anuncio
+        );
+    }
+
+    @PutMapping("/{id}")
+    public Anuncio atualizar(
+            @PathVariable Integer id,
+            @RequestBody Anuncio anuncio
+    ) {
+
+        return service.atualizar(
+                id,
+                anuncio
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public void excluir(
+            @PathVariable Integer id
+    ) {
+
+        service.excluir(
+                id
         );
     }
 }

@@ -24,6 +24,16 @@ public class PetController {
         return service.listarTodos();
     }
 
+    @GetMapping("/{id}")
+    public Pet buscarPorId(
+            @PathVariable Integer id
+    ) {
+
+        return service.buscarPorId(
+                id
+        );
+    }
+
     @GetMapping("/buscar")
     public List<Pet> buscarPorNome(
             @RequestParam String nome
@@ -41,6 +51,28 @@ public class PetController {
 
         return service.salvar(
                 pet
+        );
+    }
+
+    @PutMapping("/{id}")
+    public Pet atualizar(
+            @PathVariable Integer id,
+            @RequestBody Pet pet
+    ) {
+
+        return service.atualizar(
+                id,
+                pet
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public void excluir(
+            @PathVariable Integer id
+    ) {
+
+        service.excluir(
+                id
         );
     }
 }

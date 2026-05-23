@@ -53,6 +53,24 @@ public class UsuarioService {
             Usuario usuario
     ) {
 
+        if (usuario.getNome() == null ||
+                usuario.getNome().isBlank() ||
+                usuario.getSenhaHash() == null ||
+                usuario.getSenhaHash().isBlank() ||
+                usuario.getUfUsuario() == null ||
+                usuario.getUfUsuario().isBlank() ||
+                usuario.getContato() == null ||
+                usuario.getContato().getEmail() == null ||
+                usuario.getContato().getEmail().isBlank() ||
+                usuario.getContato().getCidade() == null ||
+                usuario.getContato().getCidade().isBlank()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Dados obrigatorios nao informados."
+            );
+        }
+
         if (usuarioRepository.existsByNome(
                 usuario.getNome()
         )) {
@@ -60,6 +78,17 @@ public class UsuarioService {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "Usuário já cadastrado."
+            );
+        }
+
+        if (usuarioRepository.existsByContatoEmail(
+                usuario.getContato()
+                        .getEmail()
+        )) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "E-mail ja cadastrado."
             );
         }
 
@@ -210,6 +239,46 @@ public class UsuarioService {
     public List<Usuario> listarTodos() {
 
         return usuarioRepository.findAll();
+    }
+
+    public Usuario autenticar(
+            String email,
+            String senha
+    ) {
+
+        if (email == null || email.isBlank() ||
+                senha == null || senha.isBlank()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email e senha sao obrigatorios."
+            );
+        }
+
+        Usuario usuario =
+                usuarioRepository
+                        .findByContatoEmail(
+                                email.trim()
+                        )
+                        .orElseThrow(
+                                () -> new ResponseStatusException(
+                                        HttpStatus.UNAUTHORIZED,
+                                        "Email ou senha invalidos."
+                                )
+                        );
+
+        if (!encoder.matches(
+                senha,
+                usuario.getSenhaHash()
+        )) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Email ou senha invalidos."
+            );
+        }
+
+        return usuario;
     }
 
     public Usuario buscarPorId(

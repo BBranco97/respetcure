@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import background from "../assets/PáginaInicial.svg"
+import background from "../assets/background.svg"
 import { Link } from "react-router-dom"
 
 export function PaginaInicial() {

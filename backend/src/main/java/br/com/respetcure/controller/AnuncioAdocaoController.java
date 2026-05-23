@@ -46,6 +46,18 @@ public class AnuncioAdocaoController {
         );
     }
 
+    @PutMapping("/{id}")
+    public AnuncioAdocao atualizar(
+            @PathVariable Integer id,
+            @RequestBody AnuncioAdocao anuncio
+    ) {
+
+        return service.atualizar(
+                id,
+                anuncio
+        );
+    }
+
     @DeleteMapping("/{id}")
     public void excluir(
             @PathVariable Integer id

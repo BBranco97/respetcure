@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @CrossOrigin(
-        origins = "http://localhost:5173"
+        originPatterns = {
+                "http://localhost:*",
+                "http://127.0.0.1:*"
+        }
 )
 @RestController
 @RequestMapping("/usuarios")
@@ -44,6 +47,22 @@ public class UsuarioController {
     ) {
 
         return service.salvar(
+                usuario
+        );
+    }
+
+    @PostMapping("/login")
+    public LoginResponse login(
+            @RequestBody LoginRequest request
+    ) {
+
+        Usuario usuario =
+                service.autenticar(
+                        request.email(),
+                        request.senha()
+                );
+
+        return LoginResponse.from(
                 usuario
         );
     }

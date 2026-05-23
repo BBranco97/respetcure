@@ -5,17 +5,27 @@ import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import BackgroundLayout from "@/layouts/BackgroundLayout"
 
-export function RecoverPass() {
+export function ChangingPass() {
   return (
     <BackgroundLayout>
-      <h1 className="title mb-2 self-center">Recuperar Senha</h1>
+      <h1 className="title mb-2 self-center">Redefinir Senha</h1>
       <Card className="w-125 self-center border-2 border-gray-900 p-6">
-        <div className="flex flex-col items-center gap-4">
-          <Label className="text-center text-xl font-semibold text-white">
-            Informe um email cadastrado para recuperar a senha
+        <div className="flex items-center gap-4">
+          <Label className="w-24 text-xl font-semibold text-white">
+            Nova Senha
           </Label>
           <Input
-            type="email"
+            type="password"
+            placeholder="email_exemplo@gmail.com"
+            className="border-gray-900 bg-white"
+          />
+        </div>
+        <div className="flex items-center gap-4">
+          <Label className="w-32 text-xl font-semibold text-white">
+            Confirme sua Senha
+          </Label>
+          <Input
+            type="password"
             placeholder="email_exemplo@gmail.com"
             className="border-gray-900 bg-white"
           />
