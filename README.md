@@ -3,9 +3,7 @@
 Sistema web desenvolvido para conectar ONGs e pessoas interessadas em:
 
 - adoção de animais
-- lar temporário
 - animais perdidos e encontrados
-- divulgação de campanhas e eventos
 
 ---
 
@@ -14,7 +12,6 @@ Sistema web desenvolvido para conectar ONGs e pessoas interessadas em:
 ## Backend
 
 - Java 17
-- :contentReference[oaicite:1]{index=1}
 - Spring Data JPA
 - Hibernate
 - SQL Server
@@ -22,7 +19,6 @@ Sistema web desenvolvido para conectar ONGs e pessoas interessadas em:
 
 ## Frontend
 
-- :contentReference[oaicite:2]{index=2}
 - TypeScript
 - Vite
 - Tailwind CSS
@@ -30,8 +26,6 @@ Sistema web desenvolvido para conectar ONGs e pessoas interessadas em:
 ## Ferramentas
 
 - Git
-- :contentReference[oaicite:3]{index=3}
-- :contentReference[oaicite:4]{index=4}
 
 ---
 
@@ -114,8 +108,6 @@ http://localhost:5173
 - autenticação JWT
 - upload de imagens
 - dashboard administrativo
-- integração com WhatsApp
-
 ---
 
 # Desenvolvido por
