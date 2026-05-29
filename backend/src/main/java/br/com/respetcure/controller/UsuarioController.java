@@ -2,6 +2,8 @@ package br.com.respetcure.controller;
 
 import br.com.respetcure.model.Usuario;
 import br.com.respetcure.service.UsuarioService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,9 +28,13 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public List<Usuario> listarTodos() {
+    public Page<Usuario> listarTodos(
+            Pageable pageable
+    ) {
 
-        return service.listarTodos();
+        return service.listarTodos(
+                pageable
+        );
     }
 
     @GetMapping("/{id}")

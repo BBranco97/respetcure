@@ -6,8 +6,10 @@ import br.com.respetcure.model.Usuario;
 import br.com.respetcure.repository.RecuperacaoSenhaRepository;
 import br.com.respetcure.repository.UsuarioRepository;
 import br.com.respetcure.repository.dominio.StatusRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,29 +28,22 @@ public class UsuarioService {
 
     private final StatusRepository statusRepository;
 
-    private final BCryptPasswordEncoder encoder =
-            new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
             StatusRepository statusRepository,
             RecuperacaoSenhaRepository recuperacaoSenhaRepository,
-            EmailService emailService
-    ) {
-
-        this.usuarioRepository =
-                usuarioRepository;
-
-        this.statusRepository =
-                statusRepository;
-
-        this.recuperacaoSenhaRepository =
-                recuperacaoSenhaRepository;
-
-        this.emailService =
-                emailService;
+            EmailService emailService,
+            PasswordEncoder passwordEncoder
+    )
+    {
+        this.usuarioRepository = usuarioRepository;
+        this.statusRepository = statusRepository;
+        this.recuperacaoSenhaRepository =  recuperacaoSenhaRepository;
+        this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
     }
-
     public Usuario salvar(
             Usuario usuario
     ) {
@@ -116,7 +111,7 @@ public class UsuarioService {
         }
 
         usuario.setSenhaHash(
-                encoder.encode(
+                passwordEncoder.encode(
                         usuario.getSenhaHash()
                 )
         );
@@ -176,7 +171,7 @@ public class UsuarioService {
                 !dados.getSenhaHash().isBlank()) {
 
             usuario.setSenhaHash(
-                    encoder.encode(
+                    passwordEncoder.encode(
                             dados.getSenhaHash()
                     )
             );
@@ -223,6 +218,14 @@ public class UsuarioService {
             contatoExistente.setNumeroCelular(
                     contatoNovo.getNumeroCelular()
             );
+
+            if (contatoNovo.getEmail() != null &&
+                    !contatoNovo.getEmail().isBlank()) {
+
+                contatoExistente.setEmail(
+                        contatoNovo.getEmail()
+                );
+            }
         }
 
         Usuario usuarioAtualizado =
@@ -236,9 +239,13 @@ public class UsuarioService {
                 .orElseThrow();
     }
 
-    public List<Usuario> listarTodos() {
+    public Page<Usuario> listarTodos(
+            Pageable pageable
+    ) {
 
-        return usuarioRepository.findAll();
+        return usuarioRepository.findAll(
+                pageable
+        );
     }
 
     public Usuario autenticar(
@@ -267,7 +274,7 @@ public class UsuarioService {
                                 )
                         );
 
-        if (!encoder.matches(
+        if (!passwordEncoder.matches(
                 senha,
                 usuario.getSenhaHash()
         )) {
@@ -392,7 +399,7 @@ public class UsuarioService {
                 recuperacao.getUsuario();
 
         usuario.setSenhaHash(
-                encoder.encode(
+                passwordEncoder.encode(
                         novaSenha
                 )
         );

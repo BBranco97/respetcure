@@ -8,7 +8,7 @@ interface BackgroundLayoutProps {
 export default function BackgroundLayout({ children }: BackgroundLayoutProps) {
   return (
     <div
-      className="</div> flex min-h-screen w-full flex-col items-center justify-center bg-cover bg-center"
+      className="flex min-h-screen w-full flex-col items-center justify-center bg-fixed bg-cover"
       style={{ backgroundImage: `url('${background}')` }}
     >
       {children}

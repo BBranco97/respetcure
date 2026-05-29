@@ -2,6 +2,7 @@ package br.com.respetcure.model;
 
 import br.com.respetcure.model.dominio.Tipo;
 import br.com.respetcure.model.dominio.Situacao;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,5 +36,6 @@ public class AnuncioAchadosPerdidos extends Anuncio {
             nullable = false,
             columnDefinition = "geography"
     )
+    @JsonIgnore
     private Point localizacao;
 }

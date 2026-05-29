@@ -4,6 +4,7 @@ import br.com.respetcure.model.dominio.Status;
 import jakarta.persistence.*;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "usuario")

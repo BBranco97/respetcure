@@ -2,6 +2,10 @@ package br.com.respetcure.controller;
 
 import br.com.respetcure.model.AnuncioAdocao;
 import br.com.respetcure.service.AnuncioAdocaoService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,10 +23,19 @@ public class AnuncioAdocaoController {
     }
 
     @GetMapping
-    public List<AnuncioAdocao>
-    listarTodos() {
-
-        return service.listarTodos();
+    public Page<AnuncioAdocao>
+    listarTodos(
+            @PageableDefault(
+                    size = 12,
+                    sort = "id",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+    )
+    {
+        return service.listarTodos(
+                pageable
+        );
     }
 
     @GetMapping("/{id}")

@@ -3,6 +3,8 @@ package br.com.respetcure.service;
 import br.com.respetcure.model.AnuncioAchadosPerdidos;
 import br.com.respetcure.repository.AnuncioAchadosPerdidosRepository;
 import br.com.respetcure.util.GeoUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,9 +40,13 @@ public class AnuncioAchadosPerdidosService {
         );
     }
 
-    public List<AnuncioAchadosPerdidos> listarTodos() {
+    public Page<AnuncioAchadosPerdidos> listarTodos(
+            Pageable pageable
+    ) {
 
-        return repository.findAll();
+        return repository.findAll(
+                pageable
+        );
     }
 
     public AnuncioAchadosPerdidos buscarPorId(

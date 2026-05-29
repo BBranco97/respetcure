@@ -1,7 +1,12 @@
 package br.com.respetcure.controller;
 
 import br.com.respetcure.model.AnuncioAchadosPerdidos;
+import br.com.respetcure.model.AnuncioAdocao;
 import br.com.respetcure.service.AnuncioAchadosPerdidosService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,10 +24,19 @@ public class AnuncioAchadosPerdidosController {
     }
 
     @GetMapping
-    public List<AnuncioAchadosPerdidos>
-    listarTodos() {
-
-        return service.listarTodos();
+    public Page<AnuncioAchadosPerdidos>
+    listarTodos(
+            @PageableDefault(
+                    size = 12,
+                    sort = "id",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+    )
+    {
+        return service.listarTodos(
+                pageable
+        );
     }
 
     @GetMapping("/{id}")
