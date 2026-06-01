@@ -49,6 +49,17 @@ public class AnuncioAdocaoController {
         );
     }
 
+    @GetMapping("/usuario/{usuarioId}")
+    public List<AnuncioAdocao>
+    listarPorUsuario(
+            @PathVariable Integer usuarioId
+    ) {
+
+        return service.listarPorUsuario(
+                usuarioId
+        );
+    }
+
     @PostMapping
     public AnuncioAdocao salvar(
             @RequestBody AnuncioAdocao anuncio

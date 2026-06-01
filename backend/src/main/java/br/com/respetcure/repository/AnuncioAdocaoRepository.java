@@ -3,9 +3,15 @@ package br.com.respetcure.repository;
 import br.com.respetcure.model.AnuncioAdocao;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface AnuncioAdocaoRepository
         extends JpaRepository<
         AnuncioAdocao,
         Integer
         > {
+
+    List<AnuncioAdocao> findByUsuarioId(
+            Integer usuarioId
+    );
 }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
+import br.com.respetcure.dto.AnuncioMapaDTO;
 
 import java.util.List;
 
@@ -50,6 +51,17 @@ public class AnuncioAchadosPerdidosController {
         );
     }
 
+    @GetMapping("/usuario/{usuarioId}")
+    public List<AnuncioAchadosPerdidos>
+    listarPorUsuario(
+            @PathVariable Integer usuarioId
+    ) {
+
+        return service.listarPorUsuario(
+                usuarioId
+        );
+    }
+
     @PostMapping
     public AnuncioAchadosPerdidos salvar(
             @RequestBody AnuncioAchadosPerdidos anuncio,
@@ -88,5 +100,11 @@ public class AnuncioAchadosPerdidosController {
         service.excluir(
                 id
         );
+    }
+
+    @GetMapping("/mapa")
+    public List<AnuncioMapaDTO> listarMapa() {
+
+        return service.listarMapa();
     }
 }

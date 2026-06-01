@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import { Search, SlidersHorizontal } from "lucide-react"
+import { Plus, Search, SlidersHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -8,20 +8,90 @@ import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   getAnnouncementLocation,
+  getDomainText,
   listarAdocoes,
   mapAdocaoToPet,
+  type AdoptionAnnouncement,
   type PetCardData,
 } from "@/lib/anuncios-service"
+import { buscarPerfilAdocaoPorUsuario } from "@/lib/perfil-adocao-service"
+import { getLoggedUser } from "@/lib/session"
+import type { AdoptionProfileData } from "@/lib/perfil-adocao-service"
 
 type AdoptionCard = PetCardData & {
   location: string
+  announcement: AdoptionAnnouncement
+}
+
+function matchesAdoptionProfile(
+  anuncio: AdoptionAnnouncement,
+  profile: AdoptionProfileData
+) {
+  const pet = anuncio.pet
+
+  if (!pet) {
+    return false
+  }
+
+  if (profile.especie?.id && pet.especie?.id !== profile.especie.id) {
+    return false
+  }
+
+  if (profile.porte?.id && pet.porte?.id !== profile.porte.id) {
+    return false
+  }
+
+  if (profile.sexo?.id && pet.sexo?.id !== profile.sexo.id) {
+    return false
+  }
+
+  if (
+    profile.temperamento?.id &&
+    anuncio.temperamento?.id !== profile.temperamento.id
+  ) {
+    return false
+  }
+
+  if (profile.idadeMin != null && (pet.idade == null || pet.idade < profile.idadeMin)) {
+    return false
+  }
+
+  if (profile.idadeMax != null && (pet.idade == null || pet.idade > profile.idadeMax)) {
+    return false
+  }
+
+  if (profile.possuiCrianca && anuncio.conviveCriancas !== true) {
+    return false
+  }
+
+  if (profile.possuiPet && anuncio.convivePets !== true) {
+    return false
+  }
+
+  return true
+}
+
+function getProfileSummary(profile: AdoptionProfileData) {
+  return [
+    getDomainText(profile.especie),
+    getDomainText(profile.porte),
+    getDomainText(profile.sexo),
+    getDomainText(profile.temperamento),
+    profile.idadeMin != null ? `a partir de ${profile.idadeMin} ano(s)` : "",
+    profile.idadeMax != null ? `ate ${profile.idadeMax} ano(s)` : "",
+  ]
+    .filter(Boolean)
+    .join(" | ")
 }
 
 export default function Adoption() {
   const [pets, setPets] = useState<AdoptionCard[]>([])
+  const [adoptionProfile, setAdoptionProfile] =
+    useState<AdoptionProfileData | null>(null)
   const [search, setSearch] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
+  const loggedUser = getLoggedUser()
 
   useEffect(() => {
     let isMounted = true
@@ -29,12 +99,27 @@ export default function Adoption() {
     async function loadAdoptions() {
       try {
         const adocoes = await listarAdocoes(100)
+        let profile: AdoptionProfileData | null = null
+
+        if (loggedUser?.id) {
+          try {
+            profile = await buscarPerfilAdocaoPorUsuario(loggedUser.id)
+          } catch {
+            profile = null
+          }
+        }
+
+        const visibleAdocoes = profile
+          ? adocoes.filter((adocao) => matchesAdoptionProfile(adocao, profile))
+          : adocoes
 
         if (isMounted) {
+          setAdoptionProfile(profile)
           setPets(
-            adocoes.map((adocao) => ({
+            visibleAdocoes.map((adocao) => ({
               ...mapAdocaoToPet(adocao),
               location: getAnnouncementLocation(adocao),
+              announcement: adocao,
             }))
           )
         }
@@ -54,7 +139,7 @@ export default function Adoption() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [loggedUser?.id])
 
   const filteredPets = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -83,16 +168,24 @@ export default function Adoption() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-2 md:w-96">
-          <Label className="text-white">Buscar</Label>
-          <div className="relative">
-            <Search className="absolute left-3 top-2 size-4 text-gray-500" />
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Nome, raca, cidade..."
-              className="border-gray-900 bg-white pl-9"
-            />
+        <div className="flex flex-col gap-3 md:w-96">
+          <Link to="/app/adoption/new" className="self-start md:self-end">
+            <Button className="border-2 border-gray-900 bg-primary hover:bg-orange-600">
+              <Plus className="size-4" />
+              Cadastrar pet
+            </Button>
+          </Link>
+          <div className="flex flex-col gap-2">
+            <Label className="text-white">Buscar</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-2 size-4 text-gray-500" />
+              <Input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Nome, raca, cidade..."
+                className="border-gray-900 bg-white pl-9"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -100,6 +193,13 @@ export default function Adoption() {
       {error && (
         <div className="rounded-md border border-red-800 bg-red-100 p-4 text-red-800">
           {error}
+        </div>
+      )}
+
+      {adoptionProfile && (
+        <div className="rounded-md border border-orange-900 bg-white/90 p-4 text-gray-900">
+          <p className="font-bold">Filtros do seu perfil de adocao aplicados</p>
+          <p>{getProfileSummary(adoptionProfile)}</p>
         </div>
       )}
 

@@ -11,6 +11,7 @@ export type DomainValue = {
 }
 
 export type BackendContato = {
+  id?: number
   nome?: string | null
   cidade?: string | null
   uf?: string | null
@@ -26,7 +27,7 @@ export type BackendUsuario = {
   fotoUrl?: string | null
 }
 
-type BackendPet = {
+export type BackendPet = {
   id?: number
   nome?: string | null
   raca?: string | null
@@ -47,12 +48,26 @@ type BaseAnuncio = {
 export type AdoptionAnnouncement = BaseAnuncio & {
   descricao?: string | null
   temperamento?: DomainValue | null
+  conviveCriancas?: boolean | null
+  convivePets?: boolean | null
+  desmamado?: boolean | null
+  vacinado?: boolean | null
+  vermifugado?: boolean | null
+  castrado?: boolean | null
   vacinas?: string | null
 }
 
 export type LostFoundAnnouncement = BaseAnuncio & {
   situacao?: DomainValue | null
   tipo?: DomainValue | null
+}
+
+export type LostFoundMapPoint = {
+  id: number
+  nomePet: string
+  tipo: string
+  latitude: number
+  longitude: number
 }
 
 export type PetCardData = {
@@ -125,8 +140,22 @@ export async function listarAchadosPerdidos(size = 12) {
   return pageContent(response.data)
 }
 
+export async function listarPontosAchadosPerdidos() {
+  const response = await api.get<LostFoundMapPoint[]>("/achados-perdidos/mapa")
+
+  return response.data
+}
+
 export async function buscarAdocaoPorId(id: string | number) {
   const response = await api.get<AdoptionAnnouncement>(`/adocoes/${id}`)
+
+  return response.data
+}
+
+export async function listarAdocoesPorUsuario(usuarioId: string | number) {
+  const response = await api.get<AdoptionAnnouncement[]>(
+    `/adocoes/usuario/${usuarioId}`
+  )
 
   return response.data
 }
@@ -134,6 +163,64 @@ export async function buscarAdocaoPorId(id: string | number) {
 export async function buscarAchadoPerdidoPorId(id: string | number) {
   const response = await api.get<LostFoundAnnouncement>(
     `/achados-perdidos/${id}`
+  )
+
+  return response.data
+}
+
+export async function listarAchadosPerdidosPorUsuario(
+  usuarioId: string | number
+) {
+  const response = await api.get<LostFoundAnnouncement[]>(
+    `/achados-perdidos/usuario/${usuarioId}`
+  )
+
+  return response.data
+}
+
+export async function buscarUsuarioPorId(id: string | number) {
+  const response = await api.get<BackendUsuario>(`/usuarios/${id}`)
+
+  return response.data
+}
+
+export async function criarPet(pet: Omit<BackendPet, "id">) {
+  const response = await api.post<BackendPet>("/pets", pet)
+
+  return response.data
+}
+
+export async function criarContato(contato: BackendContato) {
+  const response = await api.post<BackendContato & { id: number }>(
+    "/contatos",
+    contato
+  )
+
+  return response.data
+}
+
+export async function criarAdocao(
+  anuncio: Record<string, unknown>
+) {
+  const response = await api.post<AdoptionAnnouncement>("/adocoes", anuncio)
+
+  return response.data
+}
+
+export async function criarAchadoPerdido(
+  anuncio: Record<string, unknown>,
+  latitude: number,
+  longitude: number
+) {
+  const response = await api.post<LostFoundAnnouncement>(
+    "/achados-perdidos",
+    anuncio,
+    {
+      params: {
+        latitude,
+        longitude,
+      },
+    }
   )
 
   return response.data

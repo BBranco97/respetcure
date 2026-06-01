@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import br.com.respetcure.dto.AnuncioMapaDTO;
 
 import java.util.List;
 
@@ -62,6 +63,15 @@ public class AnuncioAchadosPerdidosService {
                 );
     }
 
+    public List<AnuncioAchadosPerdidos> listarPorUsuario(
+            Integer usuarioId
+    ) {
+
+        return repository.findByUsuarioId(
+                usuarioId
+        );
+    }
+
     public AnuncioAchadosPerdidos atualizar(
             Integer id,
             AnuncioAchadosPerdidos anuncio,
@@ -105,5 +115,43 @@ public class AnuncioAchadosPerdidosService {
                         id
                 )
         );
+    }
+
+    public List<AnuncioMapaDTO> listarMapa() {
+
+        return repository.findAll()
+                .stream()
+                .map(anuncio -> {
+
+                    AnuncioMapaDTO dto =
+                            new AnuncioMapaDTO();
+
+                    dto.setId(
+                            anuncio.getId()
+                    );
+
+                    dto.setNomePet(
+                            anuncio.getPet()
+                                    .getNome()
+                    );
+
+                    dto.setTipo(
+                            anuncio.getTipo()
+                                    .getDescricao()
+                    );
+
+                    dto.setLatitude(
+                            anuncio.getLocalizacao()
+                                    .getY()
+                    );
+
+                    dto.setLongitude(
+                            anuncio.getLocalizacao()
+                                    .getX()
+                    );
+
+                    return dto;
+                })
+                .toList();
     }
 }

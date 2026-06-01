@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -15,8 +16,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { PhoneInput, LocationSelect } from "./Register"
 import { api } from "@/lib/api"
 import {
-  listarAchadosPerdidos,
-  listarAdocoes,
+  listarAchadosPerdidosPorUsuario,
+  listarAdocoesPorUsuario,
   mapAchadoPerdidoToPet,
   mapAdocaoToPet,
   type BackendUsuario,
@@ -36,7 +37,7 @@ function splitPhone(phone?: string | null) {
   }
 }
 
-function PetItem({ pet }: { pet: PetCardData }) {
+function PetItem({ pet, detailPath }: { pet: PetCardData; detailPath: string }) {
   const [isLoading, setIsLoading] = useState(true)
 
   return (
@@ -78,15 +79,22 @@ function PetItem({ pet }: { pet: PetCardData }) {
             className="h-64 w-full rounded-lg object-cover"
           />
           <p className="text-lg text-gray-700">{pet.description}</p>
-          <Button
-            className="border-2 border-gray-900 bg-primary px-10 py-2 text-lg hover:bg-orange-600"
-            onClick={() => alert(`Abrindo edicao do anuncio ${pet.id}...`)}
-          >
-            Editar Pet
-          </Button>
+          <Link to={detailPath}>
+            <Button className="w-full border-2 border-gray-900 bg-primary px-10 py-2 text-lg hover:bg-orange-600">
+              Ver anuncio
+            </Button>
+          </Link>
         </div>
       </DialogContent>
     </Dialog>
+  )
+}
+
+function EmptyPets({ message }: { message: string }) {
+  return (
+    <p className="w-full py-6 text-center text-lg font-semibold text-white">
+      {message}
+    </p>
   )
 }
 
@@ -103,7 +111,8 @@ export default function Profile() {
   const [phone, setPhone] = useState("")
   const [selectedUf, setSelectedUf] = useState(loggedUser?.ufUsuario ?? "")
   const [selectedCidade, setSelectedCidade] = useState("")
-  const [userPets, setUserPets] = useState<PetCardData[]>([])
+  const [userAdoptionPets, setUserAdoptionPets] = useState<PetCardData[]>([])
+  const [userLostFoundPets, setUserLostFoundPets] = useState<PetCardData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -133,8 +142,8 @@ export default function Profile() {
       try {
         const [userResponse, adocoes, achadosPerdidos] = await Promise.all([
           api.get<BackendUsuario>(`/usuarios/${loggedUser.id}`),
-          listarAdocoes(100),
-          listarAchadosPerdidos(100),
+          listarAdocoesPorUsuario(loggedUser.id),
+          listarAchadosPerdidosPorUsuario(loggedUser.id),
         ])
 
         if (!isMounted) {
@@ -142,10 +151,8 @@ export default function Profile() {
         }
 
         fillUserFields(userResponse.data)
-        setUserPets([
-          ...adocoes.map(mapAdocaoToPet),
-          ...achadosPerdidos.map(mapAchadoPerdidoToPet),
-        ].filter((pet) => pet.usuarioId === loggedUser.id))
+        setUserAdoptionPets(adocoes.map(mapAdocaoToPet))
+        setUserLostFoundPets(achadosPerdidos.map(mapAchadoPerdidoToPet))
       } catch {
         if (isMounted) {
           setError("Nao foi possivel carregar os dados do perfil.")
@@ -334,22 +341,24 @@ export default function Profile() {
           <h2 className="text-3xl font-bold text-white">
             <span className="subtitle">Meus Pets para Adocao</span>
           </h2>
-          <Button className="border-2 border-gray-900 bg-primary px-10 py-2 text-lg hover:bg-orange-600">
-            + Adicionar Pet
-          </Button>
+          <Link to="/app/adoption/new">
+            <Button className="border-2 border-gray-900 bg-primary px-10 py-2 text-lg hover:bg-orange-600">
+              + Adicionar Pet
+            </Button>
+          </Link>
         </div>
         <Card className="relative border-2 border-gray-900 p-6 shadow-2xl backdrop-blur-md">
           <CardContent className="flex flex-wrap justify-center gap-4">
             {isLoading ? (
               <Skeleton className="h-44 w-full" />
+            ) : userAdoptionPets.length === 0 ? (
+              <EmptyPets message="Voce ainda nao cadastrou pets para adocao." />
             ) : (
-              userPets
-                .filter((p) => p.status === "adoption")
-                .map((pet) => (
-                  <div key={pet.id} className="w-fit">
-                    <PetItem pet={pet} />
-                  </div>
-                ))
+              userAdoptionPets.map((pet) => (
+                <div key={pet.id} className="w-fit">
+                  <PetItem pet={pet} detailPath={`/app/adoption/${pet.id}`} />
+                </div>
+              ))
             )}
           </CardContent>
         </Card>
@@ -360,22 +369,24 @@ export default function Profile() {
           <h2 className="text-3xl font-bold text-white">
             <span className="subtitle">Meus Pets Achados e Perdidos</span>
           </h2>
-          <Button className="border-2 border-gray-900 bg-primary px-10 py-2 text-lg hover:bg-orange-600">
-            + Adicionar Pet
-          </Button>
+          <Link to="/app/lostfound/new">
+            <Button className="border-2 border-gray-900 bg-primary px-10 py-2 text-lg hover:bg-orange-600">
+              + Adicionar Pet
+            </Button>
+          </Link>
         </div>
         <Card className="relative max-w-4xl border-2 border-gray-900 p-6 shadow-2xl backdrop-blur-md">
           <CardContent className="flex w-full flex-wrap justify-center gap-4">
             {isLoading ? (
               <Skeleton className="h-44 w-full" />
+            ) : userLostFoundPets.length === 0 ? (
+              <EmptyPets message="Voce ainda nao cadastrou pets achados ou perdidos." />
             ) : (
-              userPets
-                .filter((p) => p.status !== "adoption")
-                .map((pet) => (
-                  <div key={pet.id} className="w-fit">
-                    <PetItem pet={pet} />
-                  </div>
-                ))
+              userLostFoundPets.map((pet) => (
+                <div key={pet.id} className="w-fit">
+                  <PetItem pet={pet} detailPath={`/app/lostfound/${pet.id}`} />
+                </div>
+              ))
             )}
           </CardContent>
         </Card>

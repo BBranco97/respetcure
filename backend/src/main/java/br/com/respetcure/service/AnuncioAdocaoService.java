@@ -52,6 +52,15 @@ public class AnuncioAdocaoService {
                 );
     }
 
+    public List<AnuncioAdocao> listarPorUsuario(
+            Integer usuarioId
+    ) {
+
+        return repository.findByUsuarioId(
+                usuarioId
+        );
+    }
+
     public AnuncioAdocao atualizar(
             Integer id,
             AnuncioAdocao anuncio

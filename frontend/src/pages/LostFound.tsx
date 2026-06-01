@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import { MapPin, Search } from "lucide-react"
+import { Map, MapPin, Plus, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -94,6 +94,18 @@ export default function LostFound() {
         </div>
 
         <div className="grid gap-3 md:w-[32rem] md:grid-cols-[1fr_auto]">
+          <Link to="/app/lostfound/new" className="md:col-span-2 md:ml-auto">
+            <Button className="border-2 border-gray-900 bg-primary hover:bg-orange-600">
+              <Plus className="size-4" />
+              Cadastrar anuncio
+            </Button>
+          </Link>
+          <Link to="/app/mapa" className="md:col-span-2 md:ml-auto">
+            <Button className="border-2 border-gray-900 bg-white text-gray-900 hover:bg-orange-100">
+              <Map className="size-4" />
+              Ver mapa
+            </Button>
+          </Link>
           <div className="flex flex-col gap-2">
             <Label className="text-white">Buscar</Label>
             <div className="relative">
