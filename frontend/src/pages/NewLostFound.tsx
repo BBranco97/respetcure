@@ -302,9 +302,7 @@ export default function NewLostFound() {
         <h1 className="text-4xl font-bold text-white">
           <span className="subtitle">Cadastrar achado ou perdido</span>
         </h1>
-        <p className="text-white/80">
-          Publique a sinalizacao com os dados do pet, contato e ponto no mapa.
-        </p>
+
       </div>
 
       {error && (

@@ -297,9 +297,7 @@ export default function NewAdoption() {
         <h1 className="text-4xl font-bold text-white">
           <span className="subtitle">Cadastrar adocao</span>
         </h1>
-        <p className="text-white/80">
-          Registre o pet e os dados de contato para publicar no backend.
-        </p>
+
       </div>
 
       {error && (

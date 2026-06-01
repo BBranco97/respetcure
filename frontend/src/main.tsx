@@ -4,15 +4,15 @@ import { createRoot } from "react-dom/client"
 
 import "./index.css"
 import App from "./App.tsx"
-import { ThemeProvider } from "@/components/theme-provider.tsx"
+// import { ThemeProvider } from "@/components/theme-provider.tsx"
 import "leaflet/dist/leaflet.css"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
 
-      <ThemeProvider>
+      {/*<ThemeProvider>*/}
         <App />
-      </ThemeProvider>
+      {/*</ThemeProvider>*/}
 
   </StrictMode>
 )

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
+import {MapContainer, TileLayer, Marker, Popup, useMap} from "react-leaflet"
 import L from "leaflet"
 //import "leaflet/dist/leaflet.css"
 
@@ -63,16 +63,24 @@ export default function MapaAchadosPerdidos() {
         )
     }
 
+    console.log(pontos);
     return (
         <div className="mx-auto h-[700px] w-full max-w-7xl overflow-hidden rounded-md border-2 border-gray-900">
             <MapContainer
                 center={[-23.5505, -46.6333]}
                 zoom={7}
                 style={{
-                    width: "100%",
-                    height: "100%",
+                    width: "900px",
+                    height: "700px",
                 }}
             >
+                <AjustarMapa pontos={pontos} />
+
+                <TileLayer
+                    attribution="&copy; OpenStreetMap contributors"
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+
                 <TileLayer
                     attribution="&copy; OpenStreetMap contributors"
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -107,4 +115,29 @@ export default function MapaAchadosPerdidos() {
             </MapContainer>
         </div>
     )
+
+    function AjustarMapa({
+                             pontos,
+                         }: {
+        pontos: LostFoundMapPoint[]
+    }) {
+        const map = useMap()
+
+        useEffect(() => {
+            if (pontos.length === 0) return
+
+            const bounds = L.latLngBounds(
+                pontos.map((p) => [
+                    p.latitude,
+                    p.longitude,
+                ])
+            )
+
+            map.fitBounds(bounds, {
+                padding: [50, 50],
+            })
+        }, [map, pontos])
+
+        return null
+    }
 }
