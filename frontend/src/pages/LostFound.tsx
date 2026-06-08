@@ -88,9 +88,7 @@ export default function LostFound() {
           <h1 className="text-4xl font-bold text-white">
             <span className="subtitle">Achados e Perdidos</span>
           </h1>
-          <p className="text-white/80">
-            Anuncios cadastrados no backend para ajudar pets a voltarem para casa.
-          </p>
+
         </div>
 
         <div className="grid gap-3 md:w-[32rem] md:grid-cols-[1fr_auto]">
