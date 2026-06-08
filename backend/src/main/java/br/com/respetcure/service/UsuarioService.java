@@ -24,6 +24,8 @@ public class UsuarioService {
 
     private final EmailService emailService;
 
+    private final ImageStorageService imageStorageService;
+
     private final UsuarioRepository usuarioRepository;
 
     private final StatusRepository statusRepository;
@@ -35,6 +37,7 @@ public class UsuarioService {
             StatusRepository statusRepository,
             RecuperacaoSenhaRepository recuperacaoSenhaRepository,
             EmailService emailService,
+            ImageStorageService imageStorageService,
             PasswordEncoder passwordEncoder
     )
     {
@@ -42,6 +45,7 @@ public class UsuarioService {
         this.statusRepository = statusRepository;
         this.recuperacaoSenhaRepository =  recuperacaoSenhaRepository;
         this.emailService = emailService;
+        this.imageStorageService = imageStorageService;
         this.passwordEncoder = passwordEncoder;
     }
     public Usuario salvar(
@@ -227,6 +231,36 @@ public class UsuarioService {
                 );
             }
         }
+
+        Usuario usuarioAtualizado =
+                usuarioRepository.save(
+                        usuario
+                );
+
+        return usuarioRepository.findById(
+                        usuarioAtualizado.getId()
+                )
+                .orElseThrow();
+    }
+
+    public Usuario atualizarFoto(
+            Integer id,
+            org.springframework.web.multipart.MultipartFile file
+    ) {
+
+        Usuario usuario =
+                buscarPorId(
+                        id
+                );
+
+        String fotoUrl =
+                imageStorageService.saveUserImage(
+                        file
+                );
+
+        usuario.setFotoUrl(
+                fotoUrl
+        );
 
         Usuario usuarioAtualizado =
                 usuarioRepository.save(

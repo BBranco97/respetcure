@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import { PhoneInput, LocationSelect } from "./Register"
-import { api } from "@/lib/api"
+import { api, toApiUrl } from "@/lib/api"
 import {
   listarAchadosPerdidosPorUsuario,
   listarAdocoesPorUsuario,
@@ -37,7 +37,13 @@ function splitPhone(phone?: string | null) {
   }
 }
 
-function PetItem({ pet, detailPath }: { pet: PetCardData; detailPath: string }) {
+function PetItem({
+  pet,
+  detailPath,
+}: {
+  pet: PetCardData
+  detailPath: string
+}) {
   const [isLoading, setIsLoading] = useState(true)
 
   return (
@@ -102,8 +108,10 @@ export default function Profile() {
   const loggedUser = getLoggedUser()
   const [currentUser, setCurrentUser] = useState<BackendUsuario | null>(null)
   const [userImage, setUserImage] = useState<string | null>(
-    loggedUser?.fotoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+    toApiUrl(loggedUser?.fotoUrl) ||
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
   )
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [name, setName] = useState(loggedUser?.nome ?? "")
   const [email, setEmail] = useState(loggedUser?.email ?? "")
@@ -126,7 +134,11 @@ export default function Profile() {
     setPhone(phoneParts.phone)
     setSelectedUf(user.contato?.uf ?? user.ufUsuario ?? "")
     setSelectedCidade(user.contato?.cidade ?? "")
-    setUserImage(user.fotoUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix")
+    setUserImage(
+      toApiUrl(user.fotoUrl) ||
+        "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+    )
+    setSelectedImageFile(null)
   }
 
   useEffect(() => {
@@ -174,6 +186,8 @@ export default function Profile() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      setSelectedImageFile(file)
+
       const reader = new FileReader()
       reader.onload = (event) => {
         setUserImage(event.target?.result as string)
@@ -188,26 +202,42 @@ export default function Profile() {
     }
 
     try {
-      const response = await api.put<BackendUsuario>(`/usuarios/${loggedUser.id}`, {
-        nome: name,
-        ufUsuario: selectedUf,
-        fotoUrl: userImage,
-        contato: {
+      const response = await api.put<BackendUsuario>(
+        `/usuarios/${loggedUser.id}`,
+        {
           nome: name,
-          cidade: selectedCidade,
-          uf: selectedUf,
-          numeroCelular: ddd + phone.replace(/\D/g, ""),
-          email,
-        },
-      })
+          ufUsuario: selectedUf,
+          contato: {
+            nome: name,
+            cidade: selectedCidade,
+            uf: selectedUf,
+            numeroCelular: ddd + phone.replace(/\D/g, ""),
+            email,
+          },
+        }
+      )
 
-      fillUserFields(response.data)
+      let savedUser = response.data
+
+      if (selectedImageFile) {
+        const formData = new FormData()
+        formData.append("file", selectedImageFile)
+
+        const imageResponse = await api.post<BackendUsuario>(
+          `/usuarios/${loggedUser.id}/foto`,
+          formData
+        )
+
+        savedUser = imageResponse.data
+      }
+
+      fillUserFields(savedUser)
       updateLoggedUser({
-        id: response.data.id,
-        nome: response.data.nome ?? name,
-        email: response.data.contato?.email ?? email,
-        ufUsuario: response.data.ufUsuario ?? selectedUf,
-        fotoUrl: response.data.fotoUrl ?? userImage,
+        id: savedUser.id,
+        nome: savedUser.nome ?? name,
+        email: savedUser.contato?.email ?? email,
+        ufUsuario: savedUser.ufUsuario ?? selectedUf,
+        fotoUrl: savedUser.fotoUrl ?? null,
       })
       setIsEditing(false)
       alert("Perfil salvo com sucesso!")

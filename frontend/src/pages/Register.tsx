@@ -13,10 +13,18 @@ import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import BackgroundLayout from "@/layouts/BackgroundLayout"
 import { api } from "@/lib/api"
+import type { BackendUsuario } from "@/lib/anuncios-service"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 
-export function PhoneInput({ ddd, setDdd, phone, setPhone, error, readOnly = false }: {
+export function PhoneInput({
+  ddd,
+  setDdd,
+  phone,
+  setPhone,
+  error,
+  readOnly = false,
+}: {
   ddd: string
   setDdd: (val: string) => void
   phone: string
@@ -116,7 +124,9 @@ export function LocationSelect({
           value={selectedUf}
           disabled={readOnly}
         >
-          <SelectTrigger className={`w-48 border-gray-900 bg-white ${error ? "border-red-500" : ""}`}>
+          <SelectTrigger
+            className={`w-48 border-gray-900 bg-white ${error ? "border-red-500" : ""}`}
+          >
             <SelectValue placeholder="Selecione o Estado" />
           </SelectTrigger>
           <SelectContent>
@@ -135,7 +145,9 @@ export function LocationSelect({
           onValueChange={(value) => setSelectedCidade(value as string)}
           value={selectedCidade}
         >
-          <SelectTrigger className={`border-gray-900 bg-white ${error ? "border-red-500" : ""}`}>
+          <SelectTrigger
+            className={`border-gray-900 bg-white ${error ? "border-red-500" : ""}`}
+          >
             <SelectValue placeholder="Selecione a cidade" />
           </SelectTrigger>
           <SelectContent>
@@ -147,12 +159,10 @@ export function LocationSelect({
           </SelectContent>
         </Select>
       </div>
-      {error && <span className="text-sm text-red-500 ml-24">{error}</span>}
+      {error && <span className="ml-24 text-sm text-red-500">{error}</span>}
     </div>
   )
 }
-
-
 
 export function Register() {
   const [name, setName] = useState("")
@@ -164,12 +174,15 @@ export function Register() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [userImage, setUserImage] = useState<string | null>(null)
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const navigate = useNavigate()
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      setSelectedImageFile(file)
+
       const reader = new FileReader()
       reader.onload = (event) => {
         setUserImage(event.target?.result as string)
@@ -186,62 +199,49 @@ export function Register() {
     if (!ddd || !phone) newErrors.phone = "O telefone é obrigatório."
     if (!selectedUf || !selectedCidade)
       newErrors.location = "A localização é obrigatória."
-    if (!password)
-      newErrors.password = "A senha é obrigatória."
+    if (!password) newErrors.password = "A senha é obrigatória."
     if (!confirmPassword)
-      newErrors.confirmPassword =
-          "A confirmação de senha é obrigatória."
+      newErrors.confirmPassword = "A confirmação de senha é obrigatória."
     if (password !== confirmPassword)
-      newErrors.confirmPassword =
-          "As senhas não coincidem."
+      newErrors.confirmPassword = "As senhas não coincidem."
 
     setErrors(newErrors)
 
-    if (Object.keys(newErrors).length > 0)
-      return
+    if (Object.keys(newErrors).length > 0) return
 
     try {
+      const response = await api.post<BackendUsuario>("/usuarios", {
+        nome: name,
+        senhaHash: password,
+        ufUsuario: selectedUf,
 
-      await api.post(
-          "/usuarios",
-          {
-            nome: name,
-            senhaHash: password,
-            ufUsuario: selectedUf,
+        contato: {
+          nome: name,
+          cidade: selectedCidade,
+          uf: selectedUf,
+          numeroCelular: ddd + phone.replace("-", ""),
+          email: email,
+        },
+      })
 
-            contato: {
-              nome: name,
-              cidade: selectedCidade,
-              uf: selectedUf,
-              numeroCelular:
-                  ddd + phone.replace("-", ""),
-              email: email
-            }
-          }
-      )
+      if (selectedImageFile) {
+        const formData = new FormData()
+        formData.append("file", selectedImageFile)
 
-      alert(
-          "Cadastro realizado com sucesso!"
-      )
+        await api.post(`/usuarios/${response.data.id}/foto`, formData)
+      }
+
+      alert("Cadastro realizado com sucesso!")
 
       navigate("/login")
-
-    }
-    catch (error) {
-
+    } catch (error) {
       if (axios.isAxiosError(error)) {
-
-        alert(
-            error.response?.data?.mensagem ??
-            "Erro ao cadastrar usuário."
-        )
+        alert(error.response?.data?.mensagem ?? "Erro ao cadastrar usuário.")
 
         return
       }
 
-      alert(
-          "Erro ao cadastrar usuário."
-      )
+      alert("Erro ao cadastrar usuário.")
     }
   }
 
@@ -252,7 +252,11 @@ export function Register() {
         <div className="relative flex flex-col items-center justify-center">
           <div className="relative h-32 w-32 overflow-hidden rounded-full border-4 border-gray-900 bg-gray-200">
             {userImage ? (
-              <img src={userImage} alt="User" className="h-full w-full object-cover" />
+              <img
+                src={userImage}
+                alt="User"
+                className="h-full w-full object-cover"
+              />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-gray-300 text-gray-600">
                 <span className="text-4xl font-bold">+</span>
@@ -273,7 +277,9 @@ export function Register() {
         <Card className="w-2xl border-2 border-gray-900 p-6">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-4">
-              <Label className="w-24 text-xl font-semibold text-white">Nome</Label>
+              <Label className="w-24 text-xl font-semibold text-white">
+                Nome
+              </Label>
               <Input
                 type="text"
                 placeholder="Seu nome"
@@ -281,11 +287,13 @@ export function Register() {
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value)
-                  if (errors.name) setErrors(prev => ({ ...prev, name: "" }))
+                  if (errors.name) setErrors((prev) => ({ ...prev, name: "" }))
                 }}
               />
             </div>
-            {errors.name && <span className="text-sm text-red-500 ml-24">{errors.name}</span>}
+            {errors.name && (
+              <span className="ml-24 text-sm text-red-500">{errors.name}</span>
+            )}
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-4">
@@ -299,11 +307,14 @@ export function Register() {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value)
-                  if (errors.email) setErrors(prev => ({ ...prev, email: "" }))
+                  if (errors.email)
+                    setErrors((prev) => ({ ...prev, email: "" }))
                 }}
               />
             </div>
-            {errors.email && <span className="text-sm text-red-500 ml-24">{errors.email}</span>}
+            {errors.email && (
+              <span className="ml-24 text-sm text-red-500">{errors.email}</span>
+            )}
           </div>
 
           <PhoneInput
@@ -324,7 +335,9 @@ export function Register() {
 
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-4">
-              <Label className="w-24 text-xl font-semibold text-white">Senha</Label>
+              <Label className="w-24 text-xl font-semibold text-white">
+                Senha
+              </Label>
               <Input
                 type="password"
                 placeholder="Sua senha"
@@ -332,11 +345,16 @@ export function Register() {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value)
-                  if (errors.password) setErrors(prev => ({ ...prev, password: "" }))
+                  if (errors.password)
+                    setErrors((prev) => ({ ...prev, password: "" }))
                 }}
               />
             </div>
-            {errors.password && <span className="text-sm text-red-500 ml-24">{errors.password}</span>}
+            {errors.password && (
+              <span className="ml-24 text-sm text-red-500">
+                {errors.password}
+              </span>
+            )}
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-4">
@@ -350,11 +368,16 @@ export function Register() {
                 value={confirmPassword}
                 onChange={(e) => {
                   setConfirmPassword(e.target.value)
-                  if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: "" }))
+                  if (errors.confirmPassword)
+                    setErrors((prev) => ({ ...prev, confirmPassword: "" }))
                 }}
               />
             </div>
-            {errors.confirmPassword && <span className="text-sm text-red-500 ml-24">{errors.confirmPassword}</span>}
+            {errors.confirmPassword && (
+              <span className="ml-24 text-sm text-red-500">
+                {errors.confirmPassword}
+              </span>
+            )}
           </div>
 
           <div className="flex justify-evenly pt-4">

@@ -111,12 +111,22 @@ function SelectField({
   options: DomainValue[]
   placeholder: string
 }) {
+  const selectedLabel = options.find((option) => String(option.id) === value)
+  const selectedText = selectedLabel
+    ? getDomainText(selectedLabel)
+    : value
+      ? ""
+      : undefined
+
   return (
     <div className="flex flex-col gap-2">
       <Label className="font-semibold text-white">{label}</Label>
-      <Select value={value} onValueChange={(nextValue) => onChange(nextValue ?? "")}>
+      <Select
+        value={value}
+        onValueChange={(nextValue) => onChange(nextValue ?? "")}
+      >
         <SelectTrigger className="w-full border-gray-900 bg-white">
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={placeholder}>{selectedText}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (
@@ -158,7 +168,9 @@ export default function NewAdoption() {
   const [portes, setPortes] = useState<DomainValue[]>([])
   const [sexos, setSexos] = useState<DomainValue[]>([])
   const [temperamentos, setTemperamentos] = useState<DomainValue[]>([])
-  const [existingContatoId, setExistingContatoId] = useState<number | null>(null)
+  const [existingContatoId, setExistingContatoId] = useState<number | null>(
+    null
+  )
   const [error, setError] = useState("")
   const [isSaving, setIsSaving] = useState(false)
 
@@ -188,7 +200,8 @@ export default function NewAdoption() {
           contatoEmail: contato?.email ?? loggedUser.email ?? "",
           contatoTelefone: contato?.numeroCelular ?? "",
           contatoCidade: contato?.cidade ?? "",
-          contatoUf: contato?.uf ?? usuario.ufUsuario ?? loggedUser.ufUsuario ?? "",
+          contatoUf:
+            contato?.uf ?? usuario.ufUsuario ?? loggedUser.ufUsuario ?? "",
         }))
       }
     }
@@ -198,7 +211,10 @@ export default function NewAdoption() {
     )
   }, [loggedUser])
 
-  function updateField<K extends keyof FormState>(field: K, value: FormState[K]) {
+  function updateField<K extends keyof FormState>(
+    field: K,
+    value: FormState[K]
+  ) {
     setForm((current) => ({ ...current, [field]: value }))
   }
 
@@ -297,7 +313,6 @@ export default function NewAdoption() {
         <h1 className="text-4xl font-bold text-white">
           <span className="subtitle">Cadastrar adocao</span>
         </h1>
-
       </div>
 
       {error && (
@@ -351,7 +366,9 @@ export default function NewAdoption() {
                   <Label className="font-semibold text-white">Raca</Label>
                   <Input
                     value={form.raca}
-                    onChange={(event) => updateField("raca", event.target.value)}
+                    onChange={(event) =>
+                      updateField("raca", event.target.value)
+                    }
                     className="border-gray-900 bg-white"
                     placeholder="SRD, poodle..."
                   />

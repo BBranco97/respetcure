@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { DomainValue } from "@/lib/anuncios-service"
+import { getDomainText, type DomainValue } from "@/lib/anuncios-service"
 import {
   listarEspecies,
   listarPortes,
@@ -45,15 +45,25 @@ function SelectField({
   onChange,
   required = false,
 }: SelectFieldProps) {
+  const selectedLabel = options.find((option) => String(option.id) === value)
+  const selectedText = selectedLabel
+    ? getDomainText(selectedLabel)
+    : value
+      ? ""
+      : undefined
+
   return (
     <div className="flex flex-col gap-2">
       <Label className="text-white">
         {label}
         {required ? " *" : ""}
       </Label>
-      <Select value={value} onValueChange={(nextValue) => onChange(nextValue ?? "")}>
+      <Select
+        value={value}
+        onValueChange={(nextValue) => onChange(nextValue ?? "")}
+      >
         <SelectTrigger className="w-full border-gray-900 bg-white">
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={placeholder}>{selectedText}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (
@@ -92,9 +102,7 @@ export default function AdoptionProfile() {
     setEspecieId(data.especie?.id ? String(data.especie.id) : "")
     setPorteId(data.porte?.id ? String(data.porte.id) : "")
     setSexoId(data.sexo?.id ? String(data.sexo.id) : "")
-    setTemperamentoId(
-      data.temperamento?.id ? String(data.temperamento.id) : ""
-    )
+    setTemperamentoId(data.temperamento?.id ? String(data.temperamento.id) : "")
     setIdadeMin(data.idadeMin != null ? String(data.idadeMin) : "")
     setIdadeMax(data.idadeMax != null ? String(data.idadeMax) : "")
     setPossuiCrianca(Boolean(data.possuiCrianca))
@@ -125,7 +133,9 @@ export default function AdoptionProfile() {
 
         if (loggedUser?.id) {
           try {
-            const profileData = await buscarPerfilAdocaoPorUsuario(loggedUser.id)
+            const profileData = await buscarPerfilAdocaoPorUsuario(
+              loggedUser.id
+            )
 
             if (isMounted) {
               fillProfileFields(profileData)

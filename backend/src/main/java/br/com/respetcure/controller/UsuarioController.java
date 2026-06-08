@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -82,6 +83,18 @@ public class UsuarioController {
         return service.atualizar(
                 id,
                 usuario
+        );
+    }
+
+    @PostMapping("/{id}/foto")
+    public Usuario atualizarFoto(
+            @PathVariable Integer id,
+            @RequestParam("file") MultipartFile file
+    ) {
+
+        return service.atualizarFoto(
+                id,
+                file
         );
     }
 
