@@ -28,6 +28,25 @@ public class ImageStorageService {
     public String saveUserImage(
             MultipartFile file
     ) {
+        return saveImage(
+                file,
+                "usuarios"
+        );
+    }
+
+    public String savePetImage(
+            MultipartFile file
+    ) {
+        return saveImage(
+                file,
+                "pets"
+        );
+    }
+
+    private String saveImage(
+            MultipartFile file,
+            String folder
+    ) {
 
         validateFile(file);
 
@@ -42,17 +61,17 @@ public class ImageStorageService {
         String fileName =
                 UUID.randomUUID() + "." + extension;
 
-        Path userUploadDir =
+        Path uploadDir =
                 uploadRoot
-                        .resolve("usuarios")
+                        .resolve(folder)
                         .normalize();
 
         Path destination =
-                userUploadDir
+                uploadDir
                         .resolve(fileName)
                         .normalize();
 
-        if (!destination.startsWith(userUploadDir)) {
+        if (!destination.startsWith(uploadDir)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Nome de arquivo invalido."
@@ -60,7 +79,7 @@ public class ImageStorageService {
         }
 
         try {
-            Files.createDirectories(userUploadDir);
+            Files.createDirectories(uploadDir);
             Files.copy(
                     file.getInputStream(),
                     destination,
@@ -73,7 +92,7 @@ public class ImageStorageService {
             );
         }
 
-        return "/uploads/usuarios/" + fileName;
+        return "/uploads/" + folder + "/" + fileName;
     }
 
     private void validateFile(

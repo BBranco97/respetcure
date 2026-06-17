@@ -4,6 +4,7 @@ import br.com.respetcure.model.Pet;
 import br.com.respetcure.repository.PetRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -12,11 +13,14 @@ import java.util.List;
 public class PetService {
 
     private final PetRepository petRepository;
+    private final ImageStorageService imageStorageService;
 
     public PetService(
-            PetRepository petRepository
+            PetRepository petRepository,
+            ImageStorageService imageStorageService
     ) {
         this.petRepository = petRepository;
+        this.imageStorageService = imageStorageService;
     }
 
     public Pet salvar(
@@ -63,6 +67,27 @@ public class PetService {
 
         pet.setId(
                 id
+        );
+
+        return petRepository.save(
+                pet
+        );
+    }
+
+    public Pet atualizarFoto(
+            Integer id,
+            MultipartFile foto
+    ) {
+
+        Pet pet =
+                buscarPorId(
+                        id
+                );
+
+        pet.setFotoUrl(
+                imageStorageService.savePetImage(
+                        foto
+                )
         );
 
         return petRepository.save(

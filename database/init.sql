@@ -319,6 +319,7 @@ CREATE TABLE [dbo].[pet](
     [raca] [varchar](60) NULL,
     [cor] [varchar](40) NULL,
     [idade] [int] NULL,
+    [foto_url] [varchar](500) NULL,
     CONSTRAINT [pk_pet] PRIMARY KEY CLUSTERED
 (
 [id] ASC

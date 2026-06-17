@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react"
-import {MapContainer, TileLayer, Marker, Popup, useMap} from "react-leaflet"
+import { Link } from "react-router-dom"
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet"
 import L from "leaflet"
-//import "leaflet/dist/leaflet.css"
+import "leaflet/dist/leaflet.css"
 
 import {
     listarPontosAchadosPerdidos,
@@ -63,23 +64,17 @@ export default function MapaAchadosPerdidos() {
         )
     }
 
-    console.log(pontos);
     return (
         <div className="mx-auto h-[700px] w-full max-w-7xl overflow-hidden rounded-md border-2 border-gray-900">
             <MapContainer
                 center={[-23.5505, -46.6333]}
                 zoom={7}
                 style={{
-                    width: "900px",
+                    width: "100%",
                     height: "700px",
                 }}
             >
                 <AjustarMapa pontos={pontos} />
-
-                <TileLayer
-                    attribution="&copy; OpenStreetMap contributors"
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
 
                 <TileLayer
                     attribution="&copy; OpenStreetMap contributors"
@@ -105,9 +100,9 @@ export default function MapaAchadosPerdidos() {
                                 <br />
                                 Tipo: {ponto.tipo}
                                 <br />
-                                <a href={`/app/lostfound/${ponto.id}`}>
+                                <Link to={`/app/lostfound/${ponto.id}`}>
                                     Ver anuncio
-                                </a>
+                                </Link>
                             </div>
                         </Popup>
                     </Marker>

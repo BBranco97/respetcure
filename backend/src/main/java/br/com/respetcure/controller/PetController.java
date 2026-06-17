@@ -3,6 +3,7 @@ package br.com.respetcure.controller;
 import br.com.respetcure.model.Pet;
 import br.com.respetcure.service.PetService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -51,6 +52,18 @@ public class PetController {
 
         return service.salvar(
                 pet
+        );
+    }
+
+    @PostMapping("/{id}/foto")
+    public Pet atualizarFoto(
+            @PathVariable Integer id,
+            @RequestParam("foto") MultipartFile foto
+    ) {
+
+        return service.atualizarFoto(
+                id,
+                foto
         );
     }
 

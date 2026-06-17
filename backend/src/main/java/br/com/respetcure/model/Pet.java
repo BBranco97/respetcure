@@ -38,4 +38,7 @@ public class Pet {
     private String cor;
 
     private Integer idade;
+
+    @Column(name = "foto_url", length = 500)
+    private String fotoUrl;
 }

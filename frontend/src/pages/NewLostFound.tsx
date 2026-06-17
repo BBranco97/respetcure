@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import type { FormEvent } from "react"
 import axios from "axios"
-import { LocateFixed, MapPin, PawPrint, Save } from "lucide-react"
+import { ImagePlus, LocateFixed, MapPin, PawPrint, Save } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -19,6 +19,7 @@ import {
   criarAchadoPerdido,
   criarContato,
   criarPet,
+  enviarFotoPet,
   getDomainText,
   type BackendContato,
   type DomainValue,
@@ -143,6 +144,8 @@ export default function NewLostFound() {
   const [error, setError] = useState("")
   const [isSaving, setIsSaving] = useState(false)
   const [isLocating, setIsLocating] = useState(false)
+  const [fotoPet, setFotoPet] = useState<File | null>(null)
+  const [fotoPreview, setFotoPreview] = useState("")
 
   useEffect(() => {
     async function loadPageData() {
@@ -188,6 +191,17 @@ export default function NewLostFound() {
     value: FormState[K]
   ) {
     setForm((current) => ({ ...current, [field]: value }))
+  }
+
+  function handlePhotoChange(file?: File) {
+    setFotoPet(file ?? null)
+    setFotoPreview((current) => {
+      if (current) {
+        URL.revokeObjectURL(current)
+      }
+
+      return file ? URL.createObjectURL(file) : ""
+    })
   }
 
   function requireFields() {
@@ -285,6 +299,10 @@ export default function NewLostFound() {
         }),
         resolveContato(),
       ])
+
+      if (fotoPet && pet.id) {
+        await enviarFotoPet(pet.id, fotoPet)
+      }
 
       const anuncio = await criarAchadoPerdido(
         {
@@ -411,6 +429,32 @@ export default function NewLostFound() {
                   options={situacoes}
                   placeholder="Selecione"
                 />
+                <div className="flex flex-col gap-2 md:col-span-3">
+                  <Label className="font-semibold text-white">Foto do pet</Label>
+                  <div className="grid gap-4 rounded-md border border-white/30 bg-white/10 p-4 md:grid-cols-[180px_1fr]">
+                    <div className="flex aspect-square items-center justify-center overflow-hidden rounded-md border border-gray-900 bg-white">
+                      {fotoPreview ? (
+                        <img
+                          src={fotoPreview}
+                          alt="Previa da foto do pet"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <ImagePlus className="size-10 text-gray-500" />
+                      )}
+                    </div>
+                    <div className="flex flex-col justify-center gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) =>
+                          handlePhotoChange(event.target.files?.[0])
+                        }
+                        className="border-gray-900 bg-white"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 

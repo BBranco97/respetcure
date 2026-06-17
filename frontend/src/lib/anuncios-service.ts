@@ -1,4 +1,4 @@
-import { api } from "./api"
+import { api, toApiUrl } from "./api"
 
 type PageResponse<T> = {
   content?: T[]
@@ -36,6 +36,7 @@ export type BackendPet = {
   especie?: DomainValue | null
   porte?: DomainValue | null
   sexo?: DomainValue | null
+  fotoUrl?: string | null
 }
 
 type BaseAnuncio = {
@@ -190,6 +191,15 @@ export async function criarPet(pet: Omit<BackendPet, "id">) {
   return response.data
 }
 
+export async function enviarFotoPet(petId: string | number, foto: File) {
+  const formData = new FormData()
+  formData.append("foto", foto)
+
+  const response = await api.post<BackendPet>(`/pets/${petId}/foto`, formData)
+
+  return response.data
+}
+
 export async function criarContato(contato: BackendContato) {
   const response = await api.post<BackendContato & { id: number }>(
     "/contatos",
@@ -228,6 +238,13 @@ export async function criarAchadoPerdido(
 
 export { getDomainText, formatPhone, formatAge }
 
+export function getPetImageUrl(
+  pet?: BackendPet | null,
+  fallback = fallbackImages.adoption
+) {
+  return pet?.fotoUrl ? toApiUrl(pet.fotoUrl) : fallback
+}
+
 export function mapAdocaoToPet(anuncio: AdoptionAnnouncement): PetCardData {
   const pet = anuncio.pet
   const contato = anuncio.contato ?? anuncio.usuario?.contato
@@ -237,7 +254,7 @@ export function mapAdocaoToPet(anuncio: AdoptionAnnouncement): PetCardData {
     name: pet?.nome ?? "Pet sem nome",
     age: formatAge(pet?.idade),
     breed: pet?.raca ?? getDomainText(pet?.especie) ?? "Raca nao informada",
-    image: fallbackImages.adoption,
+    image: getPetImageUrl(pet, fallbackImages.adoption),
     description: anuncio.descricao ?? "Descricao nao informada.",
     status: "adoption",
     contact: formatPhone(contato?.numeroCelular),
@@ -259,7 +276,10 @@ export function mapAchadoPerdidoToPet(
     name: pet?.nome ?? (isFound ? "Pet encontrado" : "Pet perdido"),
     age: formatAge(pet?.idade),
     breed: pet?.raca ?? getDomainText(pet?.especie) ?? "Raca nao informada",
-    image: isFound ? fallbackImages.found : fallbackImages.lost,
+    image: getPetImageUrl(
+      pet,
+      isFound ? fallbackImages.found : fallbackImages.lost
+    ),
     description: isFound
       ? "Pet encontrado. Entre em contato para mais informacoes."
       : "Pet perdido. Entre em contato para mais informacoes.",

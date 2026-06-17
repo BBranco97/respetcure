@@ -9,6 +9,7 @@ import {
   formatAge,
   formatPhone,
   getDomainText,
+  getPetImageUrl,
   type AdoptionAnnouncement,
   type LostFoundAnnouncement,
 } from "@/lib/anuncios-service"
@@ -86,8 +87,14 @@ export default function AnnouncementDetails({ type }: AnnouncementDetailsProps) 
   const backTo = type === "adoption" ? "/app/adoption" : "/app/lostfound"
   const imageUrl =
     type === "adoption"
-      ? `https://placedog.net/800/600?id=${announcement?.id ?? 30}`
-      : `https://placedog.net/800/600?id=${(announcement?.id ?? 30) + 20}`
+      ? getPetImageUrl(
+          pet,
+          `https://placedog.net/800/600?id=${announcement?.id ?? 30}`
+        )
+      : getPetImageUrl(
+          pet,
+          `https://placedog.net/800/600?id=${(announcement?.id ?? 30) + 20}`
+        )
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
