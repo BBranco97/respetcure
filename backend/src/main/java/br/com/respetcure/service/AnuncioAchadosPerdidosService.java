@@ -142,12 +142,12 @@ public class AnuncioAchadosPerdidosService {
 
                     dto.setLatitude(
                             anuncio.getLocalizacao()
-                                    .getY()
+                                    .getX()
                     );
 
                     dto.setLongitude(
                             anuncio.getLocalizacao()
-                                    .getX()
+                                    .getY()
                     );
 
                     return dto;

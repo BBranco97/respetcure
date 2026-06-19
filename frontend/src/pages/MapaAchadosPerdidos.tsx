@@ -70,7 +70,7 @@ export default function MapaAchadosPerdidos() {
                 center={[-23.5505, -46.6333]}
                 zoom={7}
                 style={{
-                    width: "100%",
+                    width: "550px",
                     height: "700px",
                 }}
             >
