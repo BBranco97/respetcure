@@ -3,11 +3,15 @@ package br.com.respetcure.util;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 
 public final class GeoUtils {
 
     private static final GeometryFactory GEOMETRY_FACTORY =
-            new GeometryFactory();
+            new GeometryFactory(
+                    new PrecisionModel(),
+                    4326
+            );
 
     private GeoUtils() {
     }
@@ -17,11 +21,18 @@ public final class GeoUtils {
             Double latitude
     ) {
 
-        return GEOMETRY_FACTORY.createPoint(
-                new Coordinate(
-                        longitude,
-                        latitude
-                )
+        Point point =
+                GEOMETRY_FACTORY.createPoint(
+                        new Coordinate(
+                                longitude,
+                                latitude
+                        )
+                );
+
+        point.setSRID(
+                4326
         );
+
+        return point;
     }
 }

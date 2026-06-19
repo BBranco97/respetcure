@@ -317,9 +317,7 @@ export default function Profile() {
                   />
                 </div>
                 <div className="flex items-center gap-4">
-                  <Label className="w-24 text-xl font-semibold text-white">
-                    Celular
-                  </Label>
+
                   <PhoneInput
                     ddd={ddd}
                     setDdd={setDdd}
